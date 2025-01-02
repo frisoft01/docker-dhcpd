@@ -8,8 +8,8 @@ option routers _GATEWAY_;
 default-lease-time _DEFAULT_LEASE_TIME_;
 max-lease-time _MAX_LEASE_TIME_;
 allow duplicates;
-next-server _SERVER_IP_;
-filename "/pxelinux.0";
+#next-server _SERVER_IP_;
+#filename "/pxelinux.0";
 
 class "coreos" {
         match if binary-to-ascii(16, 8, ":", substring (hardware, 1, 3)) = "0:50:56";

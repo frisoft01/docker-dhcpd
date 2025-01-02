@@ -1,21 +1,31 @@
-FROM alpine:3.5
+FROM alpine:3.20
 
-RUN apk add --no-cache bash dhcp net-tools supervisor rsyslog logrotate
+ARG WEBMIN_VERSION=2.202
+COPY config/webmin.exp /
+
+RUN apk add --no-cache bash dhcp net-tools supervisor rsyslog logrotate perl perl-net-ssleay openssl perl-io-tty ca-certificates apkbuild-cpan expect git zsh && \
+    mkdir -p /opt && cd /opt && \
+    wget -q -O - "https://sourceforge.net/projects/webadmin/files/webmin/${WEBMIN_VERSION}/webmin-${WEBMIN_VERSION}.tar.gz" | tar xz && \
+    ln -sf /opt/webmin-${WEBMIN_VERSION} /opt/webmin && \
+    /usr/bin/expect /webmin.exp && rm /webmin.exp && \
+    rm -rf /var/cache/apk/*
 
 ADD dhcpd/dhcpd.sh dhcpd/dhcpd.conf.template /usr/share/dhcpd/
 ADD dhcpd/dhcpd-reservations.conf /etc/dhcpd-reservations.conf
-ADD supervisor/supervisord.conf /etc/supervisord.conf
-ADD rsyslogd/rsyslog.conf /etc/rsyslog.conf
-ADD supervisor/conf.d /usr/share/supervisor/conf.d/
-ADD logrotate/logrotate.conf /etc/logrotate.conf
-ADD logrotate/dhcpd /etc/logrotate.d/dhcpd
+# ADD supervisor/supervisord.conf /etc/supervisord.conf
+# ADD rsyslogd/rsyslog.conf /etc/rsyslog.conf
+# ADD supervisor/conf.d /usr/share/supervisor/conf.d/
+# ADD logrotate/logrotate.conf /etc/logrotate.conf
+# ADD logrotate/dhcpd /etc/logrotate.d/dhcpd
 
 ENV SUBNET= NETMASK= RANGE_PXE= RANGE_STATIC= RANGE_OTHER= GATEWAY= SERVER_IP= NAMESERVERS= \
     DEFAULT_LEASE_TIME=600 \
     MAX_LEASE_TIME=1800
 
-EXPOSE 67 67/udp 547 547/udp 647 647/udp 847 847/udp
+EXPOSE 67 67/udp 10000
 
-ENTRYPOINT ["supervisord"]
+VOLUME ["/var/lib/dhcp","/etc/dhcp"]
 
-CMD ["-c", "/etc/supervisord.conf", "-n"]
+# ENTRYPOINT ["supervisord"]
+
+CMD ["/bin/bash"]
