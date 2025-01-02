@@ -1,11 +1,57 @@
 # version: '2'
+networks:
+  macvlan101:
+    driver: macvlan
+    enable_ipv6: false
+    driver_opts:
+      parent: enP4p65s0.101
+    ipam:
+      config:
+        - subnet: 172.16.101.0/24
+          gateway: 172.16.101.254
+
+volumes:
+  dhcp_data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /data/dhcp-lease
+  dhcp_config:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /data/dhcp-config
 
 services:
-    docker-homelab:
-        stdin_open: true
-        tty: true
-        ports:
-            - 10000:10000/tcp
-            - 67:67/tcp
-            - 67:67/udp
-        image: docker-homelab:latest
+  docker-homelab:
+      stdin_open: true
+      tty: true
+#      ports:
+#          - 10000:10000/tcp
+#          - 67:67/tcp
+#          - 67:67/udp
+      image: docker-homelab:latest
+      environment:
+        - "SERVER_IP=172.16.101.252"
+        - "GATEWAY=172.16.101.254"
+        - "SUBNET=172.16.101.0"
+        - "NETMASK=255.255.255.0"
+        - "RANGE_PXE=172.16.101.21 172.16.101.40"
+        - "RANGE_STATIC=172.16.101.41 172.16.101.50"
+        - "RANGE_OTHER=172.16.101.51 172.16.101.240"
+        - "NAMESERVERS=172.16.1.1,172.16.1.2"
+        - "DEFAULT_LEASE_TIME=60"
+        - "MAX_LEASE_TIME=180"
+
+      networks:
+        macvlan101:
+          ipv4_address: 172.16.101.252
+      hostname: container3
+      dns:
+        - 172.16.1.1
+        - 172.16.1.2
+      volumes:
+        - dhcp_config:/etc/dhcp
+        - dhcp_data:/var/lib/dhcp
