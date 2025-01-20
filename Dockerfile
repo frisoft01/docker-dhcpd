@@ -10,7 +10,7 @@ RUN apk add --no-cache bash dhcp net-tools supervisor rsyslog logrotate perl per
     /usr/bin/expect /webmin.exp && rm /webmin.exp && \
     rm -rf /var/cache/apk/* && \
     mkdir -p /var/log/supervisor && \
-    mkdir -p /run/dhcp/dhcpd.pid
+    mkdir -p /run/dhcp
 
 
 ADD dhcpd/dhcpd.sh dhcpd/dhcpd.conf.template /usr/share/dhcpd/

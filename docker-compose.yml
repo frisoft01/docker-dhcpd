@@ -48,7 +48,7 @@ services:
       networks:
         macvlan101:
           ipv4_address: 172.16.101.252
-      hostname: container3
+      hostname: thfsv909
       dns:
         - 172.16.1.1
         - 172.16.1.2
