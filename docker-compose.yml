@@ -1,14 +1,18 @@
 # version: '2'
 networks:
-  macvlan101:
-    driver: macvlan
-    enable_ipv6: false
-    driver_opts:
-      parent: enP4p65s0.101
-    ipam:
-      config:
-        - subnet: 172.16.101.0/24
-          gateway: 172.16.101.254
+  # macvlan101:
+  #   driver: macvlan
+  #   enable_ipv6: false
+  #   driver_opts:
+  #     parent: enP4p65s0.101
+  #   ipam:
+  #     config:
+  #       - subnet: 172.16.101.0/24
+  #         gateway: 172.16.101.254
+  samba-net2:
+    name: samba-dc
+    external: true
+
 
 volumes:
   dhcp_data:
@@ -46,7 +50,7 @@ services:
         - "MAX_LEASE_TIME=180"
 
       networks:
-        macvlan101:
+        samba-net2:
           ipv4_address: 172.16.101.252
       hostname: thfsv909
       dns:
